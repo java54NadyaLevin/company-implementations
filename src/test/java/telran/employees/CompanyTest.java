@@ -65,14 +65,6 @@ abstract class CompanyTest {
 		assertEquals(empl1, company.removeEmployee(ID1));
 		assertThrowsExactly(NoSuchElementException.class, () -> company.removeEmployee(ID1));
 	}
-	@Test
-	void testRemoveEmployeeEverywhere() {
-		assertEquals(empl3, company.removeEmployee(ID3));
-		assertThrowsExactly(NoSuchElementException.class, () -> company.removeEmployee(ID3));
-		String[] expected = { DEPARTMENT1 };
-		Arrays.sort(expected);
-		assertArrayEquals(expected, company.getDepartments());
-	}
 	
 	@Test
 	void testGetDepartmentBudget() {
@@ -95,20 +87,33 @@ abstract class CompanyTest {
 
 	@Test
 	void testGetDepartments() {
-		String[] expected = { DEPARTMENT1, DEPARTMENT2 };
+		String [] expected = {DEPARTMENT1, DEPARTMENT2};
 		Arrays.sort(expected);
 		assertArrayEquals(expected, company.getDepartments());
+		expected = new String[] {DEPARTMENT1};
+		company.removeEmployee(ID3);
+		assertArrayEquals(expected, company.getDepartments());
 	}
+	
 
 	@Test
 	void testGetManagersWithMostFactor() {
 		company.addEmployee(new Manager(ID4, SALARY1, DEPARTMENT1, FACTOR2));
-		Manager[] managersExpected = { new Manager(ID5, SALARY1, DEPARTMENT1, FACTOR3),
-				new Manager(ID6, SALARY1, DEPARTMENT1, FACTOR3), new Manager(ID7, SALARY1, DEPARTMENT2, FACTOR3) };
-		for (Manager mng : managersExpected) {
+		Manager[] managersExpected = {new Manager(ID5, SALARY1, DEPARTMENT1, FACTOR3),
+		new Manager(ID6, SALARY1, DEPARTMENT1, FACTOR3),
+		new Manager(ID7, SALARY1, DEPARTMENT2, FACTOR3)
+		};
+		for(Manager mng: managersExpected) {
 			company.addEmployee(mng);
 		}
 		assertArrayEquals(managersExpected, company.getManagersWithMostFactor());
+		company.removeEmployee(ID4);
+		company.removeEmployee(ID5);
+		company.removeEmployee(ID6);
+		company.removeEmployee(ID7);
+		assertArrayEquals(new Manager[] {(Manager) empl2}, company.getManagersWithMostFactor());
+		
+		
 	}
 
 }

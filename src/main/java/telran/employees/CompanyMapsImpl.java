@@ -19,7 +19,7 @@ public class CompanyMapsImpl implements Company {
 	public void addEmployee(Employee empl) {
 		long id = empl.getId();
 		if (employees.get(id) != null) {
-			throw new IllegalStateException("Employee is already registered");
+			throw new IllegalStateException("Employee with ID provided is already registered");
 		}
 		employees.put(id, empl);
 		employeesDepartment.computeIfAbsent(empl.getDepartment(), k -> new ArrayList<>()).add(empl);
@@ -45,37 +45,47 @@ public class CompanyMapsImpl implements Company {
 		if (empl == null) {
 			throw new NoSuchElementException();
 		}
-		employeesDepartmentClean(id);
-		if (empl instanceof Manager) {
-			factorManagersClean(empl);
-		}
-		return employees.remove(id);
+		removeEmployeeFromAllMaps(id, empl instanceof Manager);
+		return empl;
 
 	}
 
-	private void factorManagersClean(Employee empl) {
-		Manager manager = (Manager) empl;
-		if(factorManagers.get(manager.factor).size() == 1) {
+	private void removeEmployeeFromAllMaps(long id, boolean isManager) {
+		removeFromDepartments(id);
+		if (isManager) {
+			removeFromManagers(id);
+		}
+		employees.remove(id);
+	}
+
+	private void removeFromDepartments(long id) {
+		Employee empl = employees.get(id);
+		String emplDepartment = empl.getDepartment();
+		List<Employee> listEmployee = employeesDepartment.get(emplDepartment);
+
+		listEmployee.remove(empl);
+		if (listEmployee.size() == 0) {
+			employeesDepartment.remove(emplDepartment);
+		}
+	}
+
+	private void removeFromManagers(long id) {
+		Manager manager = (Manager) employees.get(id);
+		List<Manager> factorList = factorManagers.get(manager.factor);
+
+		factorList.remove(manager);
+		if (factorList.size() == 0) {
 			factorManagers.remove(manager.factor);
-		}
-	}
-
-	private void employeesDepartmentClean(long id) {
-		String employeeDepartment = employees.get(id).getDepartment();
-		if(employeesDepartment.get(employeeDepartment).size() == 1) {
-			employeesDepartment.remove(employeeDepartment);
 		}
 	}
 
 	@Override
 	public int getDepartmentBudget(String department) {
 		int result = 0;
-		if(employeesDepartment.get(department) != null) {
-	     result = employeesDepartment.get(department).stream()
-					.mapToInt(Employee::computeSalary).sum();
+		if (employeesDepartment.get(department) != null) {
+			result = employeesDepartment.get(department).stream().mapToInt(Employee::computeSalary).sum();
 		}
-
-		return  result;
+		return result;
 	}
 
 	@Override
