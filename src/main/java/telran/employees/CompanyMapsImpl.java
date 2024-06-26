@@ -11,7 +11,7 @@ public class CompanyMapsImpl implements Company {
 	@Override
 	public Iterator<Employee> iterator() {
 		List<Employee> employeeList = new ArrayList<>();
-		employees.entrySet().forEach(e -> employeeList.add(e.getValue()));
+		employees.values().forEach(e -> employeeList.add(e));
 		return employeeList.iterator();
 	}
 
@@ -41,19 +41,19 @@ public class CompanyMapsImpl implements Company {
 
 	@Override
 	public Employee removeEmployee(long id) {
-		Employee empl = employees.get(id);
-		if (empl == null) {
+		Employee result = employees.remove(id);
+		if (result == null) {
 			throw new NoSuchElementException();
 		}
-		removeEmployeeFromAllMaps(id, empl);
-		return empl;
+		removeEmployeeFromAllMaps(id, result);
+		return result;
 
 	}
 
 	private void removeEmployeeFromAllMaps(long id, Employee empl) {
 		String depKey = empl.getDepartment();
 		removeFromIndexMap(employeesDepartment, depKey, empl);
-		
+
 		if (empl instanceof Manager) {
 			Manager manager = (Manager) empl;
 			float factorKey = manager.factor;
@@ -73,6 +73,7 @@ public class CompanyMapsImpl implements Company {
 	@Override
 	public int getDepartmentBudget(String department) {
 		int result = 0;
+
 		if (employeesDepartment.get(department) != null) {
 			result = employeesDepartment.get(department).stream().mapToInt(Employee::computeSalary).sum();
 		}
@@ -86,8 +87,12 @@ public class CompanyMapsImpl implements Company {
 
 	@Override
 	public Manager[] getManagersWithMostFactor() {
-		Float key = factorManagers.lastKey();
-		return factorManagers.get(key).toArray(Manager[]::new);
+		Manager[] result = new Manager[0];
+		if (factorManagers.size() > 0) {
+			Float key = factorManagers.lastKey();
+			result = factorManagers.get(key).toArray(Manager[]::new);
+		}
+		return result;
 	}
 
 }

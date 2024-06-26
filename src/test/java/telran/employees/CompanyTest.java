@@ -112,8 +112,11 @@ abstract class CompanyTest {
 		company.removeEmployee(ID6);
 		company.removeEmployee(ID7);
 		assertArrayEquals(new Manager[] {(Manager) empl2}, company.getManagersWithMostFactor());
-		
-		
-	}
-
+		}
+	
+	@Test 
+	void noManagersTest() {
+		company.removeEmployee(ID2); 
+		assertArrayEquals(new Manager[0],company.getManagersWithMostFactor());
+		} 
 }
