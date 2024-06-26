@@ -45,37 +45,28 @@ public class CompanyMapsImpl implements Company {
 		if (empl == null) {
 			throw new NoSuchElementException();
 		}
-		removeEmployeeFromAllMaps(id, empl instanceof Manager);
+		removeEmployeeFromAllMaps(id, empl);
 		return empl;
 
 	}
 
-	private void removeEmployeeFromAllMaps(long id, boolean isManager) {
-		removeFromDepartments(id);
-		if (isManager) {
-			removeFromManagers(id);
+	private void removeEmployeeFromAllMaps(long id, Employee empl) {
+		String depKey = empl.getDepartment();
+		removeFromIndexMap(employeesDepartment, depKey, empl);
+		
+		if (empl instanceof Manager) {
+			Manager manager = (Manager) empl;
+			float factorKey = manager.factor;
+			removeFromIndexMap(factorManagers, factorKey, (Manager) empl);
 		}
 		employees.remove(id);
 	}
 
-	private void removeFromDepartments(long id) {
-		Employee empl = employees.get(id);
-		String emplDepartment = empl.getDepartment();
-		List<Employee> listEmployee = employeesDepartment.get(emplDepartment);
-
-		listEmployee.remove(empl);
-		if (listEmployee.size() == 0) {
-			employeesDepartment.remove(emplDepartment);
-		}
-	}
-
-	private void removeFromManagers(long id) {
-		Manager manager = (Manager) employees.get(id);
-		List<Manager> factorList = factorManagers.get(manager.factor);
-
-		factorList.remove(manager);
-		if (factorList.size() == 0) {
-			factorManagers.remove(manager.factor);
+	<K, V> void removeFromIndexMap(Map<K, List<V>> map, K key, V empl) {
+		List<V> list = map.get(key);
+		list.remove(empl);
+		if (list.size() == 0) {
+			map.remove(key);
 		}
 	}
 
